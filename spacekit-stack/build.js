@@ -18,7 +18,7 @@ module.exports = async function build(
     dockerfile,
     dockerfileContents = read(dockerfile, "utf-8"),
     workspace = dirname(dockerfile)
-}, ...rest)
+})
 {
     const hash = toSHA256(dockerfileContents);
     const tag = `${name}:${hash}`;
