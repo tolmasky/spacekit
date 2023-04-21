@@ -8,27 +8,32 @@ const build = require("@spacekit/stack/build");
 const spawn = require("@await/spawn");
 const docker = spawn .for `docker`;
 
-
+// Add unique ID to .spacekit?
 module.exports = async function run(spacefile)
 {
     const definition = require(spacefile);
     const stack = await build
     ({
         name: basename(spacefile),
-        dockerfileContents: definition,
+        dockerfileContents: definition.dockerfileContents,
         workspace: __dirname
     });
+
+    const { environment = [], volumes = [] } = definitions;
 
     await docker
     ([
         "run",
         "--rm",
         "-it",
-/*        ...volumes
-            .map(({ from, to, readonly = false }) =>
-                ["-v", `${from}:${to}${ readonly ? ":ro" : ""}`])
-            .flat(),
-        ...(port ? ["--env", `HOST_SETUP_PORT=${port}`] : []),*/
+
+        ...volumes
+            .flatMap(({ from, to, readonly = false }) =>
+                ["-v", `${from}:${to}${ readonly ? ":ro" : ""}`]),
+
+        ...environment
+            .map(({ name, value }) => ["--env", `${name}=${value}`]),
+
         stack,
 //        ...rest
     ], { stdio: "inherit", captureStdio: false });
