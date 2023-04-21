@@ -3,7 +3,7 @@
 const { readFileSync: read } = require("node:fs");
 const { basename, dirname, join } = require("node:path");
 
-const build = require("@spacekit/stack/build");
+const build = require("@spacekit/build");
 
 const spawn = require("@await/spawn");
 const docker = spawn .for `docker`;

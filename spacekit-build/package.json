@@ -1,8 +1,8 @@
 {
-  "name": "@spacekit/space",
+  "name": "@spacekit/build",
   "version": "1.0.0-alpha.1",
   "description": "",
-  "main": "spacekit-space.js",
+  "main": "spacekit-build.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
