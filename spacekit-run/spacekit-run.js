@@ -3,7 +3,7 @@
 const given = f => f();
 
 const { readFileSync: read } = require("node:fs");
-const { basename, dirname, join } = require("node:path");
+const { basename, dirname, join, resolve } = require("node:path");
 
 const { ø } = require("@reified/object");
 const { IsFunctionObject } = require("@reified/foundation/types-and-values");
@@ -19,14 +19,17 @@ const flatExtant = items => items.filter(item => !!item).flat();
 // Add unique ID to .spacekit?
 module.exports = async function run(spacefile, ...clientArguments)
 {
-    const definition = await toDefinition(spacefile, clientArguments);
-    const imageID = await build(definition);
+    const absoluteSpacefile = resolve(process.env.PWD, spacefile);
 
-    await docker(flatExtant
+    const definition = await toDefinition(absoluteSpacefile, clientArguments);
+    const imageID = await build(definition);
+console.log(flatExtant
     ([
         "run",
         "--rm",
-        "-it",
+        "-i",
+
+        definition.tty && "-t",
 
         definition
             .capabilities
@@ -34,6 +37,35 @@ module.exports = async function run(spacefile, ...clientArguments)
 
         definition.network && `--network=${definition.network}`,
 
+//        "-p", "27184:27184",
+        ...definition
+            .volumes
+            .map(({ from, to, readonly = false }) =>
+                ["-v", `${from}:${to}${ readonly ? ":ro" : ""}`]),
+
+        definition
+            .environment
+            .map(({ name, value }) => ["--env", `${name}=${value}`]),
+
+        imageID,
+
+        definition.command
+    ]));
+    await docker(flatExtant
+    ([
+        "run",
+        "--rm",
+        "-i",
+
+        definition.tty && "-t",
+
+        definition
+            .capabilities
+            .map(capability => `--cap-add=${capability}`),
+
+        definition.network && `--network=${definition.network}`,
+
+//        "-p", "27184:27184",
         definition
             .volumes
             .map(({ from, to, readonly = false }) =>
