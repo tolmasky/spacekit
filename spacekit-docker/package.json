@@ -1,8 +1,8 @@
 {
-  "name": "@spacekit/build",
-  "version": "1.0.0-alpha.1",
+  "name": "@spacekit/docker",
+  "version": "1.0.0",
   "description": "",
-  "main": "spacekit-build.js",
+  "main": "spacekit-docker.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -12,8 +12,5 @@
     "email": "tolmasky@gmail.com",
     "url": "https://tolmasky.com"
   },
-  "license": "MIT",
-  "dependencies": {
-    "@babel/register": "^7.21.0"
-  }
+  "license": "MIT"
 }

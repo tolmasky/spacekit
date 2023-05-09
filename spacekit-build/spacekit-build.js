@@ -15,6 +15,7 @@ const toSHA256 = data => require("crypto")
 module.exports = async function build(
 {
     name,
+    image,
     dockerfile,
     dockerfileContents = read(dockerfile, "utf-8"),
     workspace = dirname(dockerfile)

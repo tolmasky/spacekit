@@ -6,7 +6,7 @@ const { readFileSync: read } = require("node:fs");
 const { basename, dirname, join, resolve } = require("node:path");
 
 const { ø } = require("@reified/object");
-const { IsFunctionObject } = require("@reified/foundation/types-and-values");
+const { IsFunctionObject } = require("@reified/ecma-262");
 
 const build = require("@spacekit/build");
 
