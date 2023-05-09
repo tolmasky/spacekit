@@ -13,17 +13,21 @@ const build = require("@spacekit/build");
 const spawn = require("@await/spawn");
 const docker = spawn .for `docker`;
 
+const Image = require("@spacekit/docker/image");
+
 
 const flatExtant = items => items.filter(item => !!item).flat();
 
 // Add unique ID to .spacekit?
 module.exports = async function run(spacefile, ...clientArguments)
 {
+    require("@spacekit/build/node_modules/@babel/register")({ cache: false, plugins: ["@reified/jsx"] });
+
     const absoluteSpacefile = resolve(process.env.PWD, spacefile);
 
-    const definition = await toDefinition(absoluteSpacefile, clientArguments);
+    const definition = await toDefinition(absoluteSpacefile, clientArguments);console.log(definition);
     const imageID = await build(definition);
-console.log(flatExtant
+/*console.log(flatExtant
     ([
         "run",
         "--rm",
@@ -50,7 +54,7 @@ console.log(flatExtant
         imageID,
 
         definition.command
-    ]));
+    ]));*/
     await docker(flatExtant
     ([
         "run",
@@ -59,11 +63,10 @@ console.log(flatExtant
 
         definition.tty && "-t",
 
-        definition
-            .capabilities
+        [...definition.capabilities]
             .map(capability => `--cap-add=${capability}`),
 
-        definition.network && `--network=${definition.network}`,
+        ...definition.network.toCommandLineArguments(),
 
 //        "-p", "27184:27184",
         definition
@@ -83,15 +86,18 @@ console.log(flatExtant
 
 async function toDefinition(spacefile, clientArguments)
 {
-    const fDefinition = require(spacefile);
+    const fDefinition = require(spacefile);console.log("hi");
+    console.log(fDefinition);
     const eDefinition = IsFunctionObject(fDefinition) ?
         await fDefinition(...clientArguments) :
         fDefinition;
+
     const definition =
     ({
         ...eDefinition,
+        dockerfileContents: Image.toDockerfileContents(eDefinition.image),
     //    environment: Object.entries(ø(definition.environment),
-        capabilities: eDefinition.capabilities || [],
+        capabilities: eDefinition.capabilities || new Set(),
         command: eDefinition.command || [],
         environment: eDefinition.environment || [],
         name: eDefinition.name || basename(spacefile),
